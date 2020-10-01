@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.airbnb.epoxy.EpoxyAdapter
 import com.airbnb.epoxy.OnModelClickListener
 import com.airbnb.epoxy.OnModelLongClickListener
+import eu.chainfire.libsuperuser.Shell
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -141,6 +142,10 @@ class MainActivity : AppCompatActivity() {
     private val onAppClickListener =
         OnModelClickListener<ShortcutModel_, ShortcutModel.ViewHolder> { model, _, _, _ ->
             val app = model.shortcut
+            if (Shell.SU.available()) {
+                Shell.Pool.SU.run("am start -n ${app.pkgName}/${app.className}")
+                return@OnModelClickListener
+            }
             val intent = Intent(Intent.ACTION_MAIN)
             intent.addCategory(Intent.CATEGORY_LAUNCHER)
             intent.setClassName(app.pkgName, app.className)
